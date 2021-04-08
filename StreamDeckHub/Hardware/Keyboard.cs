@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace StreamDeckHub.Hadrware
+namespace StreamDeckHub.Hardware
 {
     /// <summary>
     /// Methods to simulate key presses in windows.

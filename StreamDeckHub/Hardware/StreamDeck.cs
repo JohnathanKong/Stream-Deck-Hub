@@ -5,11 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Text;
-using System.Linq;
 using System.Windows.Forms;
 
-namespace StreamDeckHub.Hadrware
+namespace StreamDeckHub.Hardware
 {
     class StreamDeck
     {
@@ -183,7 +181,7 @@ namespace StreamDeckHub.Hadrware
 
         private void PressKeys(Keys[] keys)
         {
-            StreamDeckHub.Hadrware.Keyboard.Press(keys);
+            StreamDeckHub.Hardware.Keyboard.Press(keys);
         }
         private void OpenFolder(int index)
         {

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace StreamDeckHub.Hadrware
+namespace StreamDeckHub.Hardware
 {
     public enum StreamDeckButtonAction
     {

@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Text;
-using System.Runtime.InteropServices;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Windows.Forms;
-using OpenMacroBoard.SDK;
 using StreamDeckHub.NotificationListener;
-using StreamDeckHub.Hadrware;
+using StreamDeckHub.Hardware;
 using System.Security.Cryptography;
 using System.Text;
 using System.Linq;

@@ -1,25 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace StreamDeckHub
 {
     static class Settings
     {
-        static public void SaveButtons(StreamDeckHub.Hadrware.StreamDeckButton[] buttons)
+        static public void SaveButtons(StreamDeckHub.Hardware.StreamDeckButton[] buttons)
         {
             System.IO.File.WriteAllText(Constants.JSON_BUTTON_FILE, JsonSerializer.Serialize(buttons));
         }
 
-        static public StreamDeckHub.Hadrware.StreamDeckButton[] LoadButtons()
+        static public StreamDeckHub.Hardware.StreamDeckButton[] LoadButtons()
         {
-            StreamDeckHub.Hadrware.StreamDeckButton[] buttons = null;
+            StreamDeckHub.Hardware.StreamDeckButton[] buttons = null;
 
             try
             {
                 string jsonFile = System.IO.File.ReadAllText(Constants.JSON_BUTTON_FILE);
-                buttons = JsonSerializer.Deserialize <StreamDeckHub.Hadrware.StreamDeckButton[]>(jsonFile);
+                buttons = JsonSerializer.Deserialize <StreamDeckHub.Hardware.StreamDeckButton[]>(jsonFile);
             }
             catch { }
             
