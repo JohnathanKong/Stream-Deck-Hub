@@ -19,9 +19,19 @@ namespace StreamDeckHub.Hadrware
         private StreamDeckButton[] _currentButtons = null;
         private int _currentLevel = 0;
         private Dictionary<string, List<uint>> _currentNotifications = new Dictionary<string, List<uint>>();
+        private System.Timers.Timer _backToMain = null;
 
         public StreamDeck(StreamDeckButton[] buttons)
         {
+            // only activate the timer if it's greater than zero
+            if (Constants.BACK_TO_MAIN_TIMER_IN_SECONDS > 0)
+            {
+                this._backToMain = new System.Timers.Timer();
+                this._backToMain.Interval = (int)TimeSpan.FromSeconds(Constants.BACK_TO_MAIN_TIMER_IN_SECONDS).TotalMilliseconds;
+                this._backToMain.Enabled = true;
+                this._backToMain.Elapsed += new System.Timers.ElapsedEventHandler(BackToMain);
+            }
+
             this._streamDeck = StreamDeckSharp.StreamDeck.OpenDevice();
 
             this._streamDeckButtons = buttons;
@@ -55,8 +65,11 @@ namespace StreamDeckHub.Hadrware
             StreamDeckButton[] buttons = this._streamDeckButtons;
             int currentLevel = 0;
 
+            // drill down to get the current level. This helps with going forward and back 
+            // the tree.
             foreach (int level in this._levels)
             {
+                // add the back button only if we are in a sub directory.
                 if (buttons[level].ChildElements != null && buttons[level].ChildElements.Count > 0)
                 {
                     List<StreamDeckButton> newButtons = new List<StreamDeckButton>(buttons[level].ChildElements);
@@ -71,9 +84,11 @@ namespace StreamDeckHub.Hadrware
                 }
             }
 
+            // if our level has changed, we need to clear the screen
             if (currentLevel != this._currentLevel)
             {
                 this._streamDeck.ClearKeys();
+                this._currentLevel = currentLevel;
             }
 
             this._currentButtons = buttons;
@@ -81,6 +96,12 @@ namespace StreamDeckHub.Hadrware
             for (int count = 0; count < buttons.Length; count++)
             {
                 this.AddButton(count, buttons[count]);
+            }
+
+            // I want a timer to reset to main
+            if(this._currentLevel > 0)
+            {
+                this.StartBackTimer();
             }
         }
 
@@ -103,6 +124,9 @@ namespace StreamDeckHub.Hadrware
         private void ButtonClicked(object sender, OpenMacroBoard.SDK.KeyEventArgs e)
         {
             if (e.IsDown) return;
+
+            // there is some action, so stop the timer
+            this.StopBackTimer();
 
             StreamDeckButton button = null;
             
@@ -183,6 +207,30 @@ namespace StreamDeckHub.Hadrware
             notification.ClearNotifications();
             this._currentNotifications.Clear();
             this.DrawButtons();
+        }
+
+        private void StartBackTimer()
+        {
+            if (this._backToMain != null)
+            {
+                
+                this._backToMain.Start();
+            }
+        }
+
+        private void StopBackTimer()
+        {
+            if (this._backToMain != null)
+            {
+                this._backToMain.Stop();
+            }
+        }
+
+        private void BackToMain(object sender, EventArgs e)
+        {
+            this._levels.Clear(); ;
+            this.DrawButtons();
+            this.StopBackTimer();
         }
 
         private KeyBitmap CreateBitmap(string icon, bool AddNotification)
