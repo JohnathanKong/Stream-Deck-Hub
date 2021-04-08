@@ -145,7 +145,16 @@ namespace StreamDeckHub.Hadrware
 
         private void OpenTarget(string target)
         {
-            System.Diagnostics.Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
+            string directory = System.IO.Path.GetDirectoryName(target);
+
+            ProcessStartInfo process = new ProcessStartInfo(target);
+            process.UseShellExecute = true;
+            if (System.IO.Directory.Exists(directory))
+            {
+                process.WorkingDirectory = directory;
+            }
+
+            System.Diagnostics.Process.Start(process);
         }
 
         private void PressKeys(Keys[] keys)
