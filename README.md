@@ -32,3 +32,6 @@ This was built in Visual Studio 2019. To build and run
 3. Rename buttons.json.example to buttons.json and move it into the build exe directory
 4. edit the buttons.json with the tiles that you want
 5. just do a build and run
+
+## Notification System
+I wanted to do some other notification things, but to get this done, I had to hardcode some exceptions into the notification system. Because chrome's notification system does not split the different types, calendar notification vs email vs something else, I made exceptions in the notification systems. When using this, I decided to bring this a bit further and have sort of an "integration" with nest. I have my nest sending files to my server, and my server sends me an email when those files have been processed. I've added hardcoded logic to look for this specific email and send it to the Nest tile. This allows me to replace the nest icon with an image when my nest detects movement. 
