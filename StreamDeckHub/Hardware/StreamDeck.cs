@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Net;
 using System.Windows.Forms;
 
 namespace StreamDeckHub.Hardware
@@ -18,9 +20,17 @@ namespace StreamDeckHub.Hardware
         private int _currentLevel = 0;
         private Dictionary<string, List<uint>> _currentNotifications = new Dictionary<string, List<uint>>();
         private System.Timers.Timer _backToMain = null;
+        private WMPLib.WindowsMediaPlayer _buttonClickSound = null;
 
         public StreamDeck(StreamDeckButton[] buttons)
         {
+            if (Constants.ENABLE_BUTTON_CLICK)
+            {
+                this._buttonClickSound = new WMPLib.WindowsMediaPlayer();
+                this._buttonClickSound.URL = @"Assets\Sounds\button-click.mp3";
+                this._buttonClickSound.controls.stop();
+            }
+
             // only activate the timer if it's greater than zero
             if (Constants.BACK_TO_MAIN_TIMER_IN_SECONDS > 0)
             {
@@ -47,7 +57,7 @@ namespace StreamDeckHub.Hardware
 
         public void ApplyNotification(Dictionary<string, List<uint>> notifications)
         {
-            if(notifications != null && notifications.Count > 0)
+            if (notifications != null && notifications.Count > 0)
             {
                 this._currentNotifications = notifications;
             }
@@ -97,7 +107,7 @@ namespace StreamDeckHub.Hardware
             }
 
             // I want a timer to reset to main
-            if(this._currentLevel > 0)
+            if (this._currentLevel > 0)
             {
                 this.StartBackTimer();
             }
@@ -106,17 +116,17 @@ namespace StreamDeckHub.Hardware
 
         private void AddButton(int index, StreamDeckButton button)
         {
-            if(button.Action == StreamDeckButtonAction.Blank)
+            if (button.Action == StreamDeckButtonAction.Blank)
             {
                 return;
             }
 
             bool notification = false;
-            if(this._currentNotifications.Count > 0)
+            if (this._currentNotifications.Count > 0)
             {
                 notification = this._currentNotifications.ContainsKey(button.Name.ToLower());
             }
-            this._streamDeck.SetKeyBitmap(index, this.CreateBitmap(button.IconPath, notification));
+            this._streamDeck.SetKeyBitmap(index, this.CreateBitmap(button.IconPath, button.NotificationIconPath, notification));
         }
 
         private void ButtonClicked(object sender, OpenMacroBoard.SDK.KeyEventArgs e)
@@ -126,8 +136,14 @@ namespace StreamDeckHub.Hardware
             // there is some action, so stop the timer
             this.StopBackTimer();
 
+            if (this._buttonClickSound != null)
+            {
+                this._buttonClickSound.controls.currentPosition = 0;
+                this._buttonClickSound.controls.play();
+            }
+
             StreamDeckButton button = null;
-            
+
             button = this._currentButtons[e.Key];
 
             // on button click I want to remove the notification
@@ -163,6 +179,12 @@ namespace StreamDeckHub.Hardware
                     this.ClearNotifications();
                     break;
             }
+
+            // I want a timer to reset after a button has been clicked.
+            if (this._currentLevel > 0)
+            {
+                this.StartBackTimer();
+            }
         }
 
         private void OpenTarget(string target)
@@ -191,7 +213,7 @@ namespace StreamDeckHub.Hardware
 
         private void BackFolder()
         {
-            if(this._levels.Count > 0)
+            if (this._levels.Count > 0)
             {
                 this._levels.RemoveAt(this._levels.Count - 1);
                 this.DrawButtons();
@@ -211,7 +233,6 @@ namespace StreamDeckHub.Hardware
         {
             if (this._backToMain != null)
             {
-                
                 this._backToMain.Start();
             }
         }
@@ -231,8 +252,38 @@ namespace StreamDeckHub.Hardware
             this.StopBackTimer();
         }
 
-        private KeyBitmap CreateBitmap(string icon, bool AddNotification)
+        private KeyBitmap CreateBitmap(string icon, string notificationIcon, bool AddNotification)
         {
+
+            Image iconImage = null;
+            string displayIcon = icon;
+
+            if (AddNotification && !string.IsNullOrWhiteSpace(notificationIcon))
+            {
+                displayIcon = notificationIcon;
+            }
+
+            if (displayIcon.StartsWith("http"))
+            {
+                WebClient wc = new WebClient();
+                byte[] bytes = wc.DownloadData(displayIcon);
+                using (MemoryStream ms = new MemoryStream(bytes))
+                {
+                    iconImage = System.Drawing.Image.FromStream(ms);
+                    ms.Close();
+                }
+
+            }
+            else
+            {
+                using (FileStream fs = new FileStream(displayIcon, FileMode.Open))
+                {
+                    iconImage = System.Drawing.Image.FromStream(fs);
+                    fs.Close();
+                }
+
+            }
+            
             return KeyBitmap.Create.FromGraphics(Constants.BUTTON_SIZE, Constants.BUTTON_SIZE, g =>
            {
                g.SmoothingMode = SmoothingMode.HighQuality;
@@ -240,7 +291,8 @@ namespace StreamDeckHub.Hardware
                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
                // draw the image
-               g.DrawImage(System.Drawing.Image.FromFile(icon, true), Constants.ICON_PADDING, Constants.ICON_PADDING, Constants.BUTTON_SIZE - (Constants.ICON_PADDING * 2), Constants.BUTTON_SIZE - (Constants.ICON_PADDING * 2));
+               //g.DrawImage(System.Drawing.Image.FromFile(icon, true), Constants.ICON_PADDING, Constants.ICON_PADDING, Constants.BUTTON_SIZE - (Constants.ICON_PADDING * 2), Constants.BUTTON_SIZE - (Constants.ICON_PADDING * 2));
+               g.DrawImage(iconImage, Constants.ICON_PADDING, Constants.ICON_PADDING, Constants.BUTTON_SIZE - (Constants.ICON_PADDING * 2), Constants.BUTTON_SIZE - (Constants.ICON_PADDING * 2));
 
                if (AddNotification)
                {

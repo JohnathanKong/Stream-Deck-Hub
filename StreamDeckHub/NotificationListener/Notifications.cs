@@ -61,14 +61,18 @@ namespace StreamDeckHub.NotificationListener
                     // if there are generics, like google chrome, we try to split it up
                     if (displayName.ToLower() == "google chrome")
                     {
+                        displayName = "gmail";
+                        string[] bodyParts = bodyText.ToLower().Split(" - ");
                         // check if it's in a time format only.
                         if (System.Text.RegularExpressions.Regex.IsMatch(bodyText, @"^[0-9]{1,2}:[0-9]{1,2}(am|pm){1}\x20{1}–\x20{1}[0-9]{1,2}:[0-9]{1,2}(am|pm){1}$"))
                         {
                             displayName = "calendar";
                         }
-                        else
+                        // assume before the "-" is the sender and after the "-" is the subject. This is a hardcoded exception for
+                        // nest.
+                        else if (bodyParts.Length > 1 && bodyParts[0] == "noreply" && bodyParts[1].StartsWith("nest notification"))
                         {
-                            displayName = "gmail";
+                            displayName = "nest";
                         }
                     }
                 }

@@ -31,13 +31,12 @@
     <None Update="Assets\Images\Flashback.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\Sounds\button-click.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\Sounds\notification.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Assets\Sounds\" />
   </ItemGroup>
 
 </Project>

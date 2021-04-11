@@ -28,7 +28,7 @@ namespace StreamDeckHub
         private string _lastCheckHash = string.Empty;
 
         // media player for notification sounds
-        private WMPLib.WindowsMediaPlayer _wplayer = null;
+        private WMPLib.WindowsMediaPlayer _notificationPlayer = null;
 
         public frmMain()
         {
@@ -38,9 +38,9 @@ namespace StreamDeckHub
         private async void frmMain_Load(object sender, EventArgs e)
         {
             // setup notification sounds
-            this._wplayer = new WMPLib.WindowsMediaPlayer();
-            this._wplayer.URL = @"Assets\Sounds\notification.mp3";
-            this._wplayer.controls.stop();
+            this._notificationPlayer = new WMPLib.WindowsMediaPlayer();
+            this._notificationPlayer.URL = @"Assets\Sounds\notification.mp3";
+            this._notificationPlayer.controls.stop();
 
             // load up the buttons
             this._streamDeckButtons = Settings.LoadButtons();
@@ -108,12 +108,13 @@ namespace StreamDeckHub
                 if (!string.IsNullOrWhiteSpace(this._lastCheckHash) || (string.IsNullOrWhiteSpace(this._lastCheckHash) && notificationCounts.Count > 0))
                 {
                     // push the new notifications to the stream deck
-                    this._streamDeck.ApplyNotification(notificationCounts);
+                    this._streamDeck.ApplyNotification(notificationCounts); // I may have to get this to return a boolean to see if anything was matched.
 
+                    // this plays even if there was no notification matched.
                     if(notificationCounts.Count > 0)
                     {
-                        this._wplayer.controls.currentPosition = 0;
-                        this._wplayer.controls.play();
+                        this._notificationPlayer.controls.currentPosition = 0;
+                        this._notificationPlayer.controls.play();
                     }
 
                     // reset the hash

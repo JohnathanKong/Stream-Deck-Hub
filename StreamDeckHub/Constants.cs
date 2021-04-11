@@ -12,6 +12,7 @@ namespace StreamDeckHub
         public const int ICON_PADDING = 5;
         public const int LAST_BUTTON_INDEX = 14;
         public const int CHECK_TIME_IN_SECONDS = 30;
-        public const int BACK_TO_MAIN_TIMER_IN_SECONDS = 60;
+        public const int BACK_TO_MAIN_TIMER_IN_SECONDS = 10;
+        public const bool ENABLE_BUTTON_CLICK = true;
     }
 }
