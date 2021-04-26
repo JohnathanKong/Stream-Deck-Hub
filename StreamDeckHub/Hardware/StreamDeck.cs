@@ -132,6 +132,7 @@ namespace StreamDeckHub.Hardware
         private void ButtonClicked(object sender, OpenMacroBoard.SDK.KeyEventArgs e)
         {
             if (e.IsDown) return;
+            if (this._currentButtons.Length < e.Key) return;
 
             // there is some action, so stop the timer
             this.StopBackTimer();
